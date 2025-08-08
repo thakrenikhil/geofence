@@ -1,0 +1,14 @@
+{
+  "appTitle": "जियोफेंस उपस्थिति",
+  "login": "लॉगिन",
+  "email": "ईमेल",
+  "password": "पासवर्ड",
+  "signIn": "साइन इन",
+  "signOut": "साइन आउट",
+  "employeeHome": "कर्मचारी होम",
+  "adminHome": "एडमिन डैशबोर्ड",
+  "checkIn": "चेक इन",
+  "checkOut": "चेक आउट",
+  "offlineMode": "ऑफ़लाइन मोड"
+}
+

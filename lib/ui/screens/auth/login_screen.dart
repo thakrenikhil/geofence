@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../../services/localization/app_localizations.dart';
+import '../../../flutter_gen/gen_l10n/app_localizations.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -34,7 +34,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final t = AppLocalizations.of(context).t;
+    final t = AppLocalizations.of(context)!;
     final isWide = MediaQuery.of(context).size.width > 700;
 
     return Scaffold(
@@ -50,18 +50,18 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(t('login'), style: Theme.of(context).textTheme.headlineSmall),
+                    Text(t.login, style: Theme.of(context).textTheme.headlineSmall),
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _emailController,
-                      decoration: InputDecoration(labelText: t('email')),
+                      decoration: InputDecoration(labelText: t.email),
                       validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
                       controller: _passwordController,
                       obscureText: true,
-                      decoration: InputDecoration(labelText: t('password')),
+                      decoration: InputDecoration(labelText: t.password),
                       validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
                     ),
                     const SizedBox(height: 20),
@@ -71,7 +71,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         onPressed: _isLoading ? null : _submit,
                         child: _isLoading
                             ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                            : Text(t('sign_in')),
+                            : Text(t.signIn),
                       ),
                     ),
                   ],

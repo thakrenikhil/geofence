@@ -1,0 +1,14 @@
+{
+  "appTitle": "Geofence Attendance",
+  "login": "Login",
+  "email": "Email",
+  "password": "Password",
+  "signIn": "Sign in",
+  "signOut": "Sign out",
+  "employeeHome": "Employee Home",
+  "adminHome": "Admin Dashboard",
+  "checkIn": "Check In",
+  "checkOut": "Check Out",
+  "offlineMode": "Offline mode"
+}
+

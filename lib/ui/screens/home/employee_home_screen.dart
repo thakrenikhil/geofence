@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import '../../../services/localization/app_localizations.dart';
+import '../../../flutter_gen/gen_l10n/app_localizations.dart';
 
 class EmployeeHomeScreen extends StatelessWidget {
   const EmployeeHomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final t = AppLocalizations.of(context).t;
+    final t = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: Text(t('employee_home'))),
+      appBar: AppBar(title: Text(t.employeeHome)),
       body: LayoutBuilder(
         builder: (context, constraints) {
           final isWide = constraints.maxWidth > 800;
@@ -56,7 +56,7 @@ class _ActionsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = AppLocalizations.of(context).t;
+    final t = AppLocalizations.of(context)!;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -67,7 +67,7 @@ class _ActionsCard extends StatelessWidget {
               width: double.infinity,
               child: FilledButton(
                 onPressed: () {},
-                child: Text(t('check_in')),
+                child: Text(t.checkIn),
               ),
             ),
             const SizedBox(height: 12),
@@ -75,7 +75,7 @@ class _ActionsCard extends StatelessWidget {
               width: double.infinity,
               child: OutlinedButton(
                 onPressed: () {},
-                child: Text(t('check_out')),
+                child: Text(t.checkOut),
               ),
             ),
           ],

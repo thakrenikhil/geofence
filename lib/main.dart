@@ -4,8 +4,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'routing/app_router.dart';
 import 'services/firebase_initializer.dart';
-import 'services/localization/app_localizations.dart';
 import 'services/localization/locale_provider.dart';
+import 'flutter_gen/gen_l10n/app_localizations.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
