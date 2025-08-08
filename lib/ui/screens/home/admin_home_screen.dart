@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:go_router/go_router.dart';
 
 class AdminHomeScreen extends StatelessWidget {
   const AdminHomeScreen({super.key});
@@ -19,10 +20,10 @@ class AdminHomeScreen extends StatelessWidget {
               crossAxisCount: gridCount,
               crossAxisSpacing: 16,
               mainAxisSpacing: 16,
-              children: const [
-                _AdminTile(title: 'Offices'),
-                _AdminTile(title: 'Employees'),
-                _AdminTile(title: 'Reports'),
+              children: [
+                _AdminTile(title: 'Offices', onTap: () => context.go('/admin/offices')),
+                const _AdminTile(title: 'Employees'),
+                const _AdminTile(title: 'Reports'),
               ],
             );
           },
@@ -33,14 +34,18 @@ class AdminHomeScreen extends StatelessWidget {
 }
 
 class _AdminTile extends StatelessWidget {
-  const _AdminTile({required this.title});
+  const _AdminTile({required this.title, this.onTap});
   final String title;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Center(
-        child: Text(title, style: Theme.of(context).textTheme.titleLarge),
+    return InkWell(
+      onTap: onTap,
+      child: Card(
+        child: Center(
+          child: Text(title, style: Theme.of(context).textTheme.titleLarge),
+        ),
       ),
     );
   }

@@ -3,6 +3,7 @@ import '../ui/screens/splash_screen.dart';
 import '../ui/screens/auth/login_screen.dart';
 import '../ui/screens/home/employee_home_screen.dart';
 import '../ui/screens/home/admin_home_screen.dart';
+import '../ui/screens/home/admin_offices_screen.dart';
 
 class AppRouter {
   static GoRouter create() {
@@ -28,6 +29,11 @@ class AppRouter {
           path: '/admin',
           name: 'adminHome',
           builder: (context, state) => const AdminHomeScreen(),
+        ),
+        GoRoute(
+          path: '/admin/offices',
+          name: 'adminOffices',
+          builder: (context, state) => const AdminOfficesScreen(),
         ),
       ],
     );

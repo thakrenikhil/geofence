@@ -8,7 +8,7 @@ class EmployeeHomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: Text(t.employeeHome)),
+      appBar: AppBar(title: Text(t.employeeHome), actions: const [SizedBox(width: 8)]),
       body: LayoutBuilder(
         builder: (context, constraints) {
           final isWide = constraints.maxWidth > 800;
