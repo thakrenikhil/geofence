@@ -19,9 +19,7 @@ class AppBootstrap extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => LocaleProvider()),
-      ],
+      providers: [ChangeNotifierProvider(create: (_) => LocaleProvider())],
       child: const MyApp(),
     );
   }
