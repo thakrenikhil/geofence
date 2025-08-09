@@ -9,8 +9,13 @@ class AttendanceService {
     required String userId,
     required String officeId,
   }) async {
+    // Get user name from Firestore
+    final userDoc = await _firestore.collection('users').doc(userId).get();
+    final userName = userDoc.data()?['name'] ?? 'Unknown';
+
     final record = AttendanceRecord(
       userId: userId,
+      userName: userName,
       checkInAt: DateTime.now().toUtc(),
       officeId: officeId,
     );

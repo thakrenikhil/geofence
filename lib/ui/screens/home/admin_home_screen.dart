@@ -73,10 +73,11 @@ class AdminHomeScreen extends StatelessWidget {
                     color: Colors.teal,
                     onTap: () => context.push('/admin/employees'),
                   ),
-                  const _AdminTile(
+                  _AdminTile(
                     title: 'Reports',
                     icon: Icons.description,
                     color: Colors.orange,
+                    onTap: () => context.push('/admin/reports'),
                   ),
                 ],
               );

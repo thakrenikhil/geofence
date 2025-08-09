@@ -8,6 +8,7 @@ import '../ui/screens/home/admin_home_screen.dart';
 import '../ui/screens/home/admin_employees_screen.dart';
 import '../ui/screens/common/map_picker_screen.dart';
 import '../ui/screens/home/admin_offices_screen.dart';
+import '../ui/screens/home/admin_reports_screen.dart';
 
 class AppRouter {
   static GoRouter create() {
@@ -58,6 +59,11 @@ class AppRouter {
           path: '/admin/offices',
           name: 'adminOffices',
           builder: (context, state) => const AdminOfficesScreen(),
+        ),
+        GoRoute(
+          path: '/admin/reports',
+          name: 'adminReports',
+          builder: (context, state) => const AdminReportsScreen(),
         ),
       ],
     );
