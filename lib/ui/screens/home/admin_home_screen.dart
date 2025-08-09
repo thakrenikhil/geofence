@@ -37,8 +37,15 @@ class AdminHomeScreen extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.logout),
               onPressed: () async {
+                // Note: Admins don't have active attendance records,
+                // but we keep the same sign-out pattern for consistency
                 await FirebaseAuth.instance.signOut();
-                if (context.mounted) context.go('/login');
+                if (context.mounted) {
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(const SnackBar(content: Text('Signed out')));
+                  context.go('/login');
+                }
               },
             ),
           ],

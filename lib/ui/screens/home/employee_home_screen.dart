@@ -138,6 +138,26 @@ class _EmployeeHomeScreenState extends State<EmployeeHomeScreen> {
     }
   }
 
+  Future<void> _signOutWithCheckout() async {
+    // Auto check-out if currently checked in
+    if (_activeRecordId != null) {
+      await AttendanceService(
+        FirebaseFirestore.instance,
+      ).checkOut(recordId: _activeRecordId!);
+      setState(() => _activeRecordId = null);
+    }
+
+    // Sign out from Firebase Auth
+    await FirebaseAuth.instance.signOut();
+
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Signed out and checked out')),
+      );
+      context.go('/login');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
@@ -168,10 +188,7 @@ class _EmployeeHomeScreenState extends State<EmployeeHomeScreen> {
           actions: [
             IconButton(
               icon: const Icon(Icons.logout),
-              onPressed: () async {
-                await FirebaseAuth.instance.signOut();
-                if (context.mounted) context.go('/login');
-              },
+              onPressed: () => _signOutWithCheckout(),
             ),
           ],
         ),
