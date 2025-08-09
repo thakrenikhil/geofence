@@ -21,6 +21,9 @@ class AppLocalizations {
   String get password => _values('password');
   String get signIn => _values('signIn');
   String get signOut => _values('signOut');
+  String get signUp => _values('signUp');
+  String get name => _values('name');
+  String get confirmPassword => _values('confirmPassword');
   String get employeeHome => _values('employeeHome');
   String get adminHome => _values('adminHome');
   String get checkIn => _values('checkIn');
