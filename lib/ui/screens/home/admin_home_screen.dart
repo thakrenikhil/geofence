@@ -9,33 +9,72 @@ class AdminHomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
-    return Scaffold(
-      appBar: AppBar(title: Text(t.adminHome), actions: [
-        IconButton(
-          icon: const Icon(Icons.logout),
-          onPressed: () async {
-            await FirebaseAuth.instance.signOut();
-            if (context.mounted) context.go('/login');
-          },
+    return WillPopScope(
+      onWillPop: () async {
+        final shouldExit = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Exit app?'),
+            content: const Text('Do you want to close the application?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('Exit'),
+              ),
+            ],
+          ),
+        );
+        return shouldExit ?? false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(t.adminHome),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.logout),
+              onPressed: () async {
+                await FirebaseAuth.instance.signOut();
+                if (context.mounted) context.go('/login');
+              },
+            ),
+          ],
         ),
-      ]),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final isWide = constraints.maxWidth > 900;
-            final gridCount = isWide ? 3 : 1;
-            return GridView.count(
-              crossAxisCount: gridCount,
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
-              children: [
-                _AdminTile(title: 'Offices', onTap: () => context.go('/admin/offices')),
-                const _AdminTile(title: 'Employees'),
-                const _AdminTile(title: 'Reports'),
-              ],
-            );
-          },
+        body: Padding(
+          padding: const EdgeInsets.all(16),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final isWide = constraints.maxWidth > 900;
+              final gridCount = isWide ? 3 : 1;
+              return GridView.count(
+                crossAxisCount: gridCount,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+                children: [
+                  _AdminTile(
+                    title: 'Offices',
+                    icon: Icons.location_pin,
+                    color: Colors.indigo,
+                    onTap: () => context.push('/admin/offices'),
+                  ),
+                  _AdminTile(
+                    title: 'Employees',
+                    icon: Icons.group_add,
+                    color: Colors.teal,
+                    onTap: () => context.push('/admin/employees'),
+                  ),
+                  const _AdminTile(
+                    title: 'Reports',
+                    icon: Icons.description,
+                    color: Colors.orange,
+                  ),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );
@@ -43,21 +82,43 @@ class AdminHomeScreen extends StatelessWidget {
 }
 
 class _AdminTile extends StatelessWidget {
-  const _AdminTile({required this.title, this.onTap});
+  const _AdminTile({required this.title, this.onTap, this.icon, this.color});
   final String title;
   final VoidCallback? onTap;
+  final IconData? icon;
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
       child: Card(
-        child: Center(
-          child: Text(title, style: Theme.of(context).textTheme.titleLarge),
+        color: (color ?? Theme.of(context).colorScheme.primary).withOpacity(
+          0.1,
+        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        elevation: 0,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircleAvatar(
+                radius: 26,
+                backgroundColor:
+                    (color ?? Theme.of(context).colorScheme.primary)
+                        .withOpacity(0.15),
+                child: Icon(
+                  icon ?? Icons.dashboard,
+                  color: color ?? Theme.of(context).colorScheme.primary,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(title, style: Theme.of(context).textTheme.titleMedium),
+            ],
+          ),
         ),
       ),
     );
   }
 }
-
-

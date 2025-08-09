@@ -9,39 +9,64 @@ class EmployeeHomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
-    return Scaffold(
-      appBar: AppBar(title: Text(t.employeeHome), actions: [
-        IconButton(
-          icon: const Icon(Icons.logout),
-          onPressed: () async {
-            await FirebaseAuth.instance.signOut();
-            if (context.mounted) context.go('/login');
+    return WillPopScope(
+      onWillPop: () async {
+        final shouldExit = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Exit app?'),
+            content: const Text('Do you want to close the application?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('Exit'),
+              ),
+            ],
+          ),
+        );
+        return shouldExit ?? false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(t.employeeHome),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.logout),
+              onPressed: () async {
+                await FirebaseAuth.instance.signOut();
+                if (context.mounted) context.go('/login');
+              },
+            ),
+          ],
+        ),
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            final isWide = constraints.maxWidth > 800;
+            return Padding(
+              padding: const EdgeInsets.all(16),
+              child: isWide
+                  ? Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(child: _MapCard()),
+                        const SizedBox(width: 16),
+                        const Expanded(child: _ActionsCard()),
+                      ],
+                    )
+                  : Column(
+                      children: [
+                        const Expanded(child: _MapCard()),
+                        const SizedBox(height: 16),
+                        const _ActionsCard(),
+                      ],
+                    ),
+            );
           },
         ),
-      ]),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final isWide = constraints.maxWidth > 800;
-          return Padding(
-            padding: const EdgeInsets.all(16),
-            child: isWide
-                ? Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(child: _MapCard()),
-                      const SizedBox(width: 16),
-                      const Expanded(child: _ActionsCard()),
-                    ],
-                  )
-                : Column(
-                    children: [
-                      const Expanded(child: _MapCard()),
-                      const SizedBox(height: 16),
-                      const _ActionsCard(),
-                    ],
-                  ),
-          );
-        },
       ),
     );
   }
@@ -75,18 +100,12 @@ class _ActionsCard extends StatelessWidget {
           children: [
             SizedBox(
               width: double.infinity,
-              child: FilledButton(
-                onPressed: () {},
-                child: Text(t.checkIn),
-              ),
+              child: FilledButton(onPressed: () {}, child: Text(t.checkIn)),
             ),
             const SizedBox(height: 12),
             SizedBox(
               width: double.infinity,
-              child: OutlinedButton(
-                onPressed: () {},
-                child: Text(t.checkOut),
-              ),
+              child: OutlinedButton(onPressed: () {}, child: Text(t.checkOut)),
             ),
           ],
         ),
@@ -94,5 +113,3 @@ class _ActionsCard extends StatelessWidget {
     );
   }
 }
-
-

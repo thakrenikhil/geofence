@@ -14,14 +14,25 @@ class SignupScreen extends StatefulWidget {
 class _SignupScreenState extends State<SignupScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _officeNameController = TextEditingController();
+  final TextEditingController _latitudeController = TextEditingController();
+  final TextEditingController _longitudeController = TextEditingController();
+  final TextEditingController _radiusController = TextEditingController(
+    text: '100',
+  );
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   bool _isLoading = false;
 
   @override
   void dispose() {
     _nameController.dispose();
+    _officeNameController.dispose();
+    _latitudeController.dispose();
+    _longitudeController.dispose();
+    _radiusController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
@@ -38,19 +49,45 @@ class _SignupScreenState extends State<SignupScreen> {
         password: _passwordController.text.trim(),
       );
       final user = cred.user!;
+      // First-admin bootstrap: if no admin exists, this user becomes admin.
+      final adminCheck = await FirebaseFirestore.instance
+          .collection('users')
+          .where('role', isEqualTo: 'admin')
+          .limit(1)
+          .get();
+      final assignedRole = adminCheck.docs.isEmpty ? 'admin' : 'employee';
       await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
         'name': _nameController.text.trim(),
         'email': _emailController.text.trim(),
-        'role': 'employee',
+        'role': assignedRole,
         'createdAt': DateTime.now().toUtc().toIso8601String(),
       });
+
+      // If first admin, also create an office record
+      if (assignedRole == 'admin') {
+        await FirebaseFirestore.instance.collection('offices').add({
+          'name': _officeNameController.text.trim(),
+          'latitude': double.tryParse(_latitudeController.text.trim()) ?? 0,
+          'longitude': double.tryParse(_longitudeController.text.trim()) ?? 0,
+          'radiusMeters': double.tryParse(_radiusController.text.trim()) ?? 100,
+          'createdBy': user.uid,
+          'createdAt': DateTime.now().toUtc().toIso8601String(),
+        });
+      }
       if (!mounted) return;
       setState(() => _isLoading = false);
-      context.go('/employee');
+      if (!mounted) return;
+      if (assignedRole == 'admin') {
+        context.go('/admin');
+      } else {
+        context.go('/employee');
+      }
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
       setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message ?? 'Auth error')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.message ?? 'Auth error')));
     }
   }
 
@@ -72,38 +109,135 @@ class _SignupScreenState extends State<SignupScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                      child: Text(
+                        'Admin bootstrap: Use this only for office admins',
+                        style: Theme.of(
+                          context,
+                        ).textTheme.labelMedium?.copyWith(color: Colors.orange),
+                      ),
+                    ),
                     TextFormField(
                       controller: _nameController,
                       decoration: InputDecoration(labelText: t.name),
-                      validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
+                      validator: (v) =>
+                          (v == null || v.isEmpty) ? 'Required' : null,
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
                       controller: _emailController,
                       decoration: InputDecoration(labelText: t.email),
-                      validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
+                      validator: (v) =>
+                          (v == null || v.isEmpty) ? 'Required' : null,
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
                       controller: _passwordController,
                       obscureText: true,
                       decoration: InputDecoration(labelText: t.password),
-                      validator: (v) => (v == null || v.length < 6) ? 'Min 6 chars' : null,
+                      validator: (v) =>
+                          (v == null || v.length < 6) ? 'Min 6 chars' : null,
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
                       controller: _confirmPasswordController,
                       obscureText: true,
                       decoration: InputDecoration(labelText: t.confirmPassword),
-                      validator: (v) => (v != _passwordController.text) ? 'Passwords do not match' : null,
+                      validator: (v) => (v != _passwordController.text)
+                          ? 'Passwords do not match'
+                          : null,
                     ),
                     const SizedBox(height: 20),
+                    // Office details (only required when bootstrapping first admin)
+                    ExpansionTile(
+                      title: const Text('Office details (for admin only)'),
+                      initiallyExpanded: true,
+                      children: [
+                        TextFormField(
+                          controller: _officeNameController,
+                          decoration: const InputDecoration(
+                            labelText: 'Office name',
+                          ),
+                          validator: (v) => (v == null || v.isEmpty)
+                              ? 'Required for admin'
+                              : null,
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextFormField(
+                                controller: _latitudeController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Latitude',
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: TextFormField(
+                                controller: _longitudeController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Longitude',
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextFormField(
+                                controller: _radiusController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Radius (meters)',
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            OutlinedButton.icon(
+                              onPressed: () async {
+                                final result = await Navigator.of(
+                                  context,
+                                ).pushNamed('/mapPicker');
+                                if (result != null) {
+                                  final map = result as dynamic;
+                                  final lat = (map.latitude as double?) ?? 0;
+                                  final lng = (map.longitude as double?) ?? 0;
+                                  final rad =
+                                      (map.radiusMeters as double?) ?? 100;
+                                  _latitudeController.text = lat
+                                      .toStringAsFixed(6);
+                                  _longitudeController.text = lng
+                                      .toStringAsFixed(6);
+                                  _radiusController.text = rad.toStringAsFixed(
+                                    0,
+                                  );
+                                }
+                              },
+                              icon: const Icon(Icons.map),
+                              label: const Text('Pick on map'),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
                     SizedBox(
                       width: double.infinity,
                       child: FilledButton(
                         onPressed: _isLoading ? null : _submit,
                         child: _isLoading
-                            ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
                             : Text(t.signUp),
                       ),
                     ),
@@ -117,5 +251,3 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 }
-
-

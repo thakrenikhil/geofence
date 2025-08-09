@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../flutter_gen/gen_l10n/app_localizations.dart';
 import '../../../services/auth/role_service.dart';
+import '../../../services/admin/invite_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -30,6 +31,7 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isLoading = true);
     try {
       final auth = FirebaseAuth.instance;
+      // If there's a pending invite for this email and the user is new, allow default password login
       final credentials = await auth.signInWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
@@ -57,6 +59,45 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
+      // Try to claim an invite using default password 12345678 when sign-in fails
+      try {
+        final invite = await InviteService(
+          FirebaseFirestore.instance,
+        ).getInviteByEmail(_emailController.text.trim());
+        if (invite != null && _passwordController.text.trim() == '12345678') {
+          final created = await FirebaseAuth.instance
+              .createUserWithEmailAndPassword(
+                email: _emailController.text.trim(),
+                password: '12345678',
+              );
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(created.user!.uid)
+              .set({
+                'name': invite['name'] ?? '',
+                'email': _emailController.text.trim().toLowerCase(),
+                'role': (invite['role'] ?? 'employee').toString(),
+                'invited': false,
+                'createdAt': DateTime.now().toUtc().toIso8601String(),
+              });
+          // Remove email-key record now that uid-based record exists
+          await InviteService(
+            FirebaseFirestore.instance,
+          ).deleteInvite(_emailController.text.trim());
+
+          if (!mounted) return;
+          setState(() => _isLoading = false);
+          final role = (invite['role'] ?? 'employee').toString();
+          if (role == 'admin') {
+            context.go('/admin');
+          } else {
+            context.go('/employee');
+          }
+          return;
+        }
+      } catch (_) {
+        // ignore and show normal error
+      }
       setState(() => _isLoading = false);
       ScaffoldMessenger.of(
         context,
@@ -125,8 +166,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 12),
                     TextButton(
-                      onPressed: () => context.go('/signup'),
+                      onPressed: () => context.push('/signup'),
                       child: Text(t.signUp),
+                    ),
+                    TextButton(
+                      onPressed: () => context.push('/reset'),
+                      child: const Text('Forgot password?'),
                     ),
                   ],
                 ),
