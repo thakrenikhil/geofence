@@ -1,6 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../flutter_gen/gen_l10n/app_localizations.dart';
+import '../../../services/auth/role_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -25,11 +28,26 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
-    // TODO: integrate FirebaseAuth signInWithEmailAndPassword and role routing
-    await Future<void>.delayed(const Duration(milliseconds: 500));
-    if (!mounted) return;
-    setState(() => _isLoading = false);
-    context.go('/employee');
+    try {
+      final auth = FirebaseAuth.instance;
+      final credentials = await auth.signInWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+      final roleService = RoleService(FirebaseFirestore.instance);
+      final role = await roleService.fetchRoleForUser(credentials.user!.uid);
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      if (role == 'admin') {
+        context.go('/admin');
+      } else {
+        context.go('/employee');
+      }
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message ?? 'Auth error')));
+    }
   }
 
   @override
