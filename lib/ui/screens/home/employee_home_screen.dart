@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import '../../../flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -14,7 +15,7 @@ class EmployeeHomeScreen extends StatelessWidget {
           icon: const Icon(Icons.logout),
           onPressed: () async {
             await FirebaseAuth.instance.signOut();
-            if (context.mounted) Navigator.of(context).pushNamedAndRemoveUntil('/login', (_) => false);
+            if (context.mounted) context.go('/login');
           },
         ),
       ]),

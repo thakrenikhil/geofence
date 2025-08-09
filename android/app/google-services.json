@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "26450284791",
+    "project_id": "geofence-1dd3d",
+    "storage_bucket": "geofence-1dd3d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:26450284791:android:64bd0001620f6684d603f2",
+        "android_client_info": {
+          "package_name": "com.example.geofence"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBJUm3K2dY9xhGGMc2f_Na-mBOoiI31cdU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

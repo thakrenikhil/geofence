@@ -15,7 +15,7 @@ class AdminHomeScreen extends StatelessWidget {
           icon: const Icon(Icons.logout),
           onPressed: () async {
             await FirebaseAuth.instance.signOut();
-            if (context.mounted) Navigator.of(context).pushNamedAndRemoveUntil('/login', (_) => false);
+            if (context.mounted) context.go('/login');
           },
         ),
       ]),

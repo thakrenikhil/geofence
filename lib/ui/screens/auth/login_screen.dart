@@ -46,7 +46,9 @@ class _LoginScreenState extends State<LoginScreen> {
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
       setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message ?? 'Auth error')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.message ?? 'Auth error')));
     }
   }
 
@@ -68,19 +70,24 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(t.login, style: Theme.of(context).textTheme.headlineSmall),
+                    Text(
+                      t.login,
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _emailController,
                       decoration: InputDecoration(labelText: t.email),
-                      validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
+                      validator: (v) =>
+                          (v == null || v.isEmpty) ? 'Required' : null,
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
                       controller: _passwordController,
                       obscureText: true,
                       decoration: InputDecoration(labelText: t.password),
-                      validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
+                      validator: (v) =>
+                          (v == null || v.isEmpty) ? 'Required' : null,
                     ),
                     const SizedBox(height: 20),
                     SizedBox(
@@ -88,7 +95,13 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: FilledButton(
                         onPressed: _isLoading ? null : _submit,
                         child: _isLoading
-                            ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
                             : Text(t.signIn),
                       ),
                     ),
@@ -102,5 +115,3 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
-
-
