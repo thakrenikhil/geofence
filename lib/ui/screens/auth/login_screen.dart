@@ -34,8 +34,20 @@ class _LoginScreenState extends State<LoginScreen> {
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
-      final roleService = RoleService(FirebaseFirestore.instance);
-      final role = await roleService.fetchRoleForUser(credentials.user!.uid);
+      String role = 'employee';
+      try {
+        final roleService = RoleService(FirebaseFirestore.instance);
+        role = await roleService.fetchRoleForUser(credentials.user!.uid);
+      } catch (e) {
+        // Firestore unavailable or not enabled: continue as employee
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Firestore unavailable; continuing as employee'),
+            ),
+          );
+        }
+      }
       if (!mounted) return;
       setState(() => _isLoading = false);
       if (role == 'admin') {
@@ -49,6 +61,12 @@ class _LoginScreenState extends State<LoginScreen> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(e.message ?? 'Auth error')));
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Login failed')));
     }
   }
 
