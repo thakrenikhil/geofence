@@ -1,6 +1,6 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 
 class MapPickerResult {
   MapPickerResult({
@@ -30,7 +30,7 @@ class MapPickerScreen extends StatefulWidget {
 }
 
 class _MapPickerScreenState extends State<MapPickerScreen> {
-  final Completer<GoogleMapController> _controller = Completer();
+  final MapController _controller = MapController();
   LatLng? _selected;
   double _radius = 100;
 
@@ -42,28 +42,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final initial = CameraPosition(
-      target: LatLng(widget.initialLatitude, widget.initialLongitude),
-      zoom: 4,
-    );
-
-    final markers = <Marker>{};
-    final circles = <Circle>{};
-    if (_selected != null) {
-      markers.add(
-        Marker(markerId: const MarkerId('selected'), position: _selected!),
-      );
-      circles.add(
-        Circle(
-          circleId: const CircleId('radius'),
-          center: _selected!,
-          radius: _radius,
-          strokeColor: Colors.indigo,
-          fillColor: Colors.indigo.withOpacity(0.15),
-          strokeWidth: 2,
-        ),
-      );
-    }
+    final initial = LatLng(widget.initialLatitude, widget.initialLongitude);
 
     return Scaffold(
       appBar: AppBar(
@@ -88,15 +67,47 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
       body: Column(
         children: [
           Expanded(
-            child: GoogleMap(
-              initialCameraPosition: initial,
-              onMapCreated: (c) => _controller.complete(c),
-              onTap: (latLng) => setState(() => _selected = latLng),
-              markers: markers,
-              circles: circles,
-              myLocationButtonEnabled: true,
-              myLocationEnabled: false,
-              zoomControlsEnabled: true,
+            child: FlutterMap(
+              mapController: _controller,
+              options: MapOptions(
+                initialCenter: initial,
+                initialZoom: 4,
+                onTap: (tapPosition, latLng) =>
+                    setState(() => _selected = latLng),
+              ),
+              children: [
+                TileLayer(
+                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  userAgentPackageName: 'com.example.geofence',
+                ),
+                if (_selected != null)
+                  MarkerLayer(
+                    markers: [
+                      Marker(
+                        point: _selected!,
+                        width: 24,
+                        height: 24,
+                        child: const Icon(
+                          Icons.location_pin,
+                          color: Colors.red,
+                        ),
+                      ),
+                    ],
+                  ),
+                if (_selected != null)
+                  CircleLayer(
+                    circles: [
+                      CircleMarker(
+                        point: _selected!,
+                        radius: _radius,
+                        useRadiusInMeter: true,
+                        color: Colors.indigo.withOpacity(0.15),
+                        borderColor: Colors.indigo,
+                        borderStrokeWidth: 2,
+                      ),
+                    ],
+                  ),
+              ],
             ),
           ),
           Padding(
